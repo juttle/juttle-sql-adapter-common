@@ -1,0 +1,36 @@
+{
+  "name": "juttle-sql-adapter-common",
+  "version": "0.1.0",
+  "description": "Code shared by Juttle adapters for SQL databases",
+  "keywords": ["juttle", "adapter", "sql"],
+  "homepage": "https://github.com/juttle/juttle-sql-adapter-common",
+  "bugs": "https://github.com/juttle/juttle-sql-adapter-common/issues",
+  "license": "Apache-2.0",
+  "repository": "juttle/juttle-sql-adapter-common",
+  "scripts": {
+    "shrinkwrap": "npm-shrinkwrap",
+    "test": "mocha test/run.spec.js",
+    "jshint": "jshint *.js test/*.js lib/*.js",
+    "style": "jscs *.js test/*.js lib/*.js",
+    "lint": "npm run jshint & npm run style"
+  },
+  "dependencies": {
+    "knex": "^0.9.0",
+    "sqlite3": "^3.1.1",
+    "underscore": "^1.8.3",
+    "bluebird": "^3.0.5"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "jshint": "^2.9.1-rc1",
+    "mocha": "^2.3.4",
+    "jscs": "^2.6.0"
+  },
+  "peerDependencies": {
+    "juttle": "0.1.x"
+  },
+  "engines": {
+    "node": ">=4.2.0",
+    "npm": ">=2.14.7"
+  }
+}

@@ -1,0 +1,28 @@
+language: node_js
+
+cache:
+  directories:
+    - node_modules
+
+addons:
+  apt:
+    sources:
+        - ubuntu-toolchain-r-test
+    packages:
+        - g++-4.8
+
+before_install:
+  - export CXX="g++-4.8"
+
+node_js:
+    - '4.2'
+    - '5.0'
+
+before_script:
+    - npm install juttle
+    - npm install -g jshint
+    - npm install -g jscs
+
+script:
+    - npm run -s lint
+    - npm test
