@@ -27,7 +27,7 @@
     "jscs": "^2.6.0"
   },
   "peerDependencies": {
-    "juttle": "0.1.x"
+    "juttle": "^0.1.x"
   },
   "engines": {
     "node": ">=4.2.0",
