@@ -1,6 +1,6 @@
 # Juttle SQL Adapter
 
-[![Build Status](https://magnum.travis-ci.com/juttle/juttle-sql-adapter-common.svg?token=y7186y8XHjB7CcxwUcoX)](https://magnum.travis-ci.com/juttle/juttle-sql-adapter-common)
+[![Build Status](https://travis-ci.org/juttle/juttle-sql-adapter-common.svg)](https://travis-ci.org/juttle/juttle-sql-adapter-common)
 
 Common code shared among
 [PostgreSQL](https://github.com/juttle/juttle-postgres-adapter/),
