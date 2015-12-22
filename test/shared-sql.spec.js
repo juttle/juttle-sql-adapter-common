@@ -18,6 +18,8 @@ function SharedSqlTests() {
         });
 
         require('./write.spec');
+
+        require('./db.spec');
     });
 }
 module.exports = SharedSqlTests;

@@ -1,6 +1,6 @@
 {
   "name": "juttle-sql-adapter-common",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Code shared by Juttle adapters for SQL databases",
   "keywords": ["juttle", "adapter", "sql"],
   "homepage": "https://github.com/juttle/juttle-sql-adapter-common",
@@ -27,7 +27,7 @@
     "jscs": "^2.6.0"
   },
   "peerDependencies": {
-    "juttle": "^0.1.x"
+    "juttle": "^0.1.0"
   },
   "engines": {
     "node": ">=4.2.0",
