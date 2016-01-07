@@ -12,7 +12,7 @@
     "test": "mocha test/run.spec.js",
     "jshint": "jshint *.js test/*.js lib/*.js",
     "style": "jscs *.js test/*.js lib/*.js",
-    "lint": "npm run jshint & npm run style"
+    "lint": "npm run jshint && npm run style"
   },
   "dependencies": {
     "knex": "^0.9.0",
