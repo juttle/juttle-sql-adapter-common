@@ -42,6 +42,17 @@ describe('write proc', function () {
             expect(pt_time).gt(Date.parse(yesterday));
         });
     });
+
+    it('write array/object fields triggers a warning', function() {
+        return check_juttle({
+            program: 'emit -limit 1 | put a = { key: "val", arr: [1,2,3] } | put b = "test" | write sql -table "sqlwriter"'
+        })
+        .then(function(result) {
+            expect(result.warnings).to.not.have.length(0);
+            expect(result.warnings[0]).to.include('not supported');
+        });
+    });
+
     it('write proc error when fields do not match columns', function() {
         return check_juttle({
             program: 'emit -limit 1 | put c = "hi" | put d = "yes" | write sql -table "sqlwriter"'
