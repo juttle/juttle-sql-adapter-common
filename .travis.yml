@@ -13,7 +13,7 @@ addons:
 
 before_install:
     - export CXX="g++-4.8"
-    - npm install juttle@^0.2.0
+    - npm install juttle@^0.3.0
 
 node_js:
     - '4.2'
