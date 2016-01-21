@@ -1,6 +1,6 @@
 {
   "name": "juttle-sql-adapter-common",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Code shared by Juttle adapters for SQL databases",
   "keywords": [
     "juttle",
