@@ -42,6 +42,75 @@ describe('test optimizations', function() {
             expect(result.sinks.table).to.have.length(5);
         });
     });
+
+    it('tail with positive number', function() {
+        return check_optimization_juttle({
+            program: 'read sql -table "logs" -timeField "time" level = "info" | tail 5'
+        })
+        .then(function(result) {
+            expect(result.sinks.table).to.have.length(5);
+        });
+    });
+    it('tail with positive number shows initial limit of 5 in query', function() {
+        return check_juttle({
+            program: 'read sql -debug true -timeField "time" -table "logs" level = "info" | tail 5'
+        })
+        .then(function(result) {
+            expect(result.errors).to.have.length(0);
+            expect(result.warnings).to.have.length(0);
+
+            expect(result.sinks.table).to.have.length(1);
+            expect(result.sinks.table[0].query)
+                .to.match(/limit '?5'?/);
+            expect(result.sinks.table[0].query)
+                .to.match(/ORDER BY "time" desc/i);
+        });
+    });
+    it('tail 0', function() {
+        return check_optimization_juttle({
+            program: 'read sql -timeField "time" -table "logs" level = "info" | tail 0'
+        })
+        .then(function(result) {
+            expect(result.sinks.table).to.have.length(0);
+        });
+    });
+    it('tail without a limit defaults to 1', function() {
+        return check_optimization_juttle({
+            program: 'read sql -timeField "time" -table "logs" level = "info" | tail'
+        })
+        .then(function(result) {
+            expect(result.sinks.table).to.have.length(1);
+        });
+    });
+    it('tail by unoptimized', function() {
+        return check_juttle({
+            program: 'read sql -timeField "time" -table "logs" level = "info" | tail 5 by code'
+        }).then(function(result) {
+            expect(result.sinks.table).to.have.length.gt(0);
+        });
+    });
+    it('tail with limit greater than fetchSize is not optimized', function() {
+        return check_optimization_juttle({
+            program: 'read sql -fetchSize 2 -timeField "time" -table "logs" level = "info" | tail 5'
+        })
+        .then(function(result) {
+            expect(result.sinks.table).to.have.length(5);
+        })
+        .then(function(result) {
+            return check_optimization_juttle({
+                program: 'read sql -debug true -fetchSize 2 -timeField "time" -table "logs" level = "info" | tail 5'
+            });
+        })
+        .then(function(result) {
+            expect(result.errors).to.have.length(0);
+            expect(result.warnings).to.have.length(0);
+
+            expect(result.sinks.table).to.have.length(1);
+            expect(result.sinks.table[0].query)
+                .to.not.match(/limit '?5'?/);
+        });
+    });
+
     it('reduce count()', function() {
         return check_optimization_juttle({
             program: 'read sql -table "logs" | reduce count()'
