@@ -58,7 +58,26 @@ var TestUtils = {
             });
         })
         .then(function() {
-            return knex(table_name).insert(data);
+            // randomize data to ensure proper sorting
+            var randomOrderData = data.sort(function() {
+                return 0.5 - Math.random();
+            });
+            return knex(table_name).insert(randomOrderData);
+        });
+    },
+    addFuturePoints: function(table_name) {
+        var sample_data_arr = sampleData.logs;
+
+        return TestUtils.createLogTable(table_name, 'time', sample_data_arr)
+        .then(() => {
+            var sample_pt = sample_data_arr[0];
+            var future_data = _.map(_.range(3), function(n) {
+                var pt = _.clone(sample_pt);
+                pt.time = new Date(Date.now() + (n * 1000) + 2000);
+                return pt;
+            });
+            return knex(table_name).insert(future_data)
+            .then(() => future_data.length);
         });
     },
     createSimpleTable: function () {
@@ -98,31 +117,34 @@ var TestUtils = {
                     pt[k] = Math.round(v * 10000) / 10000;
                 }
             }
-
         })
         .compact()
         .value();
     },
-    check_sql_juttle: function(params) {
-        var program = params.program.replace(' sql ', ' ' + adapter.name + ' ');
-        return check_juttle({
-            program: program
+    expectTimeSorted: function(result) {
+        var time;
+        _.each(result.sinks.table, function(pt) {
+            if (time) {
+                expect(pt.time).gt(time);
+            }
+            expect(isNaN(Date.parse(pt.time))).to.be.false;
+            time = pt.time;
         });
     },
-    check_sql_optimization_juttle: function(params) {
-        var program = params.program;
-        var unopt_program = program.replace('sql', 'sql -optimize false');
+    check_sql_juttle: function(params, deactivateAfter) {
+        params.program = params.program.replace(' sql ', ' ' + adapter.name + ' ');
+        return check_juttle(params, deactivateAfter);
+    },
+    check_sql_optimization_juttle: function(params, deactivateAfter) {
+        var unopt_params = _.clone(params);
+        unopt_params.program = params.program.replace('sql', 'sql -optimize false');
 
         return Promise.props({
-            unopt: TestUtils.check_sql_juttle({
-                program: unopt_program
-            }),
-            opt: TestUtils.check_sql_juttle({
-                program: program
-            })
+            unopt: TestUtils.check_sql_juttle(unopt_params, deactivateAfter),
+            opt: TestUtils.check_sql_juttle(params, deactivateAfter)
         }).then(function(res) {
-            expect(res.opt.errors).to.have.length(0);
-            expect(res.opt.warnings).to.have.length(0);
+            expect(res.opt.errors[0]).to.equal(undefined);
+            expect(res.opt.warnings[0]).to.equal(undefined);
 
             var unopt = TestUtils.massage(res.unopt.sinks.table, params.massage);
             var opt = TestUtils.massage(res.opt.sinks.table, params.massage);

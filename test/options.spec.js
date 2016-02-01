@@ -9,8 +9,8 @@ describe('test options', function () {
             program: 'read sql -raw "select * from logs WHERE level = \'error\'"'
         })
         .then(function(result) {
-            expect(result.errors).to.have.length(0);
-            expect(result.warnings).to.have.length(0);
+            expect(result.errors[0]).to.equal(undefined);
+            expect(result.warnings[0]).to.equal(undefined);
 
             expect(result.sinks.table).to.have.length.gt(0);
             result.sinks.table.forEach(function(pt) {
@@ -51,6 +51,42 @@ describe('test options', function () {
             expect(result.warnings).to.have.length(0);
 
             expect(result.sinks.table).to.have.length(sampleData.logs.length);
+        });
+    });
+    it('sql read from table that is not there', function() {
+        return check_juttle({
+            program: 'read sql -table "not_there"'
+        })
+        .then(function(result) {
+            expect(result.warnings).to.have.length(0);
+            expect(result.sinks.table).to.have.length(0);
+
+            expect(result.errors).to.have.length(1);
+            expect(result.errors[0])
+                .to.match(/not_there/)
+                .and.to.match(/no such table|does(n't| not) exist/);
+        });
+    });
+    it('sql options incorrect error', function() {
+        return check_juttle({
+            program: 'read sql level = "error"'
+        })
+        .then(function() {
+            throw new Error('We should not get this error');
+        })
+        .catch(function(result) {
+            expect(result.message).to.contain("required option -table or -raw.");
+        });
+    });
+    it('incompatable option error', function() {
+        return check_juttle({
+            program: 'read sql -table "test" -raw "RAW SQL" level = "error"'
+        })
+        .then(function() {
+            throw new Error('We should not get this error');
+        })
+        .catch(function(result) {
+            expect(result.message).to.contain("-raw option should not be combined with");
         });
     });
 });
