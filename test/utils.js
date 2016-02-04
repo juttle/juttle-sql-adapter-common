@@ -5,17 +5,57 @@ var juttle_test_utils = require('juttle/test/runtime/specs/juttle-test-utils');
 var check_juttle = juttle_test_utils.check_juttle;
 var expect = require('chai').expect;
 var Juttle = require('juttle/lib/runtime').Juttle;
+var logger = require('juttle/lib/logger').getLogger('sql-time-test');
 
 var knex;
 var adapter;
 var defaultTablesCreated;
 
 var TestUtils = {
-    init: function (adapterConfig, adapterClass) {
-        adapter = adapterClass(adapterConfig);
+    init: function (useFake) {
+        if (adapter) { return; }
+
+        var AdapterClass = useFake ? TestUtils.getTestAdapterClass() : TestUtils.getAdapterClass();
+        var config = TestUtils.getAdapterConfig(useFake);
+
+        adapter = AdapterClass(config);
+
+        logger.info('Testing ' + adapter.name + ' adapter with config:', config);
 
         knex = adapter.knex;
         Juttle.adapters.register(adapter.name, adapter);
+    },
+
+    // override Class and Config in each repo that uses the sql common tests.
+    getAdapterClass: function() {
+        return require('../');
+    },
+    getAdapterConfig: function(useFake) {
+        var real = {
+            "knex_conf" : {
+                "client": "sqlite3",
+                "connection": ":memory:"
+            }
+        };
+        var fake = {
+            "knex_conf" : {
+                "client": "sqlite3",
+                "connection": {
+                    filename: "./not_dir/not_dir/not_db.sqlite"
+                }
+            }
+        };
+
+        return useFake ? fake : real;
+    },
+
+    getTestAdapterClass: function () {
+        var adapterClass = TestUtils.getAdapterClass();
+        return function(conf) {
+            var adapter = adapterClass.call(this, conf);
+            adapter.name = 'test';
+            return adapter;
+        };
     },
     getSampleData: function () {
         return sampleData;
@@ -26,10 +66,8 @@ var TestUtils = {
     loadTables: function (arrTablesNames) {
         return Promise.try(function() {
             if (defaultTablesCreated) {
-
                 return sampleData;
             }
-            defaultTablesCreated = true;
 
             return TestUtils.createLogTable('logs', 'time', sampleData.logs)
             .then(function() {
@@ -39,12 +77,18 @@ var TestUtils = {
             }).then(function() {
                 return TestUtils.createSimpleTable();
             }).then(function() {
+                defaultTablesCreated = true;
                 return sampleData;
             });
         });
     },
-    endConnection: function() {
-        knex.destroy();
+    clearState: function() {
+        adapter = null;
+        if (knex) {
+            knex.destroy();
+        }
+        knex = null;
+        defaultTablesCreated = false;
     },
     createLogTable: function(table_name, time_field, data) {
         return knex.schema.dropTableIfExists(table_name)

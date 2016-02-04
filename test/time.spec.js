@@ -5,6 +5,10 @@ var sampleData = TestUtils.getSampleData();
 var logger = require('juttle/lib/logger').getLogger('sql-time-test');
 
 describe('test time usage', function () {
+    before(function() {
+        TestUtils.init();
+        return TestUtils.loadTables();
+    });
     it('sql time usage', function() {
         return check_juttle({
             program: 'read sql -from :100 days ago: -to :now: -table "logs" | reduce -every :3 days: avg = avg(code)'

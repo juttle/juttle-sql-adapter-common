@@ -4,6 +4,10 @@ var check_juttle = TestUtils.check_sql_juttle;
 var sampleData = TestUtils.getSampleData();
 
 describe('test options', function () {
+    before(function() {
+        TestUtils.init();
+        return TestUtils.loadTables();
+    });
     it('-raw', function() {
         return check_juttle({
             program: 'read sql -raw "select * from logs WHERE level = \'error\'"'

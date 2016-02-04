@@ -5,6 +5,10 @@ var sampleData = TestUtils.getSampleData();
 var check_optimization_juttle = TestUtils.check_sql_optimization_juttle;
 
 describe('test optimizations', function() {
+    before(function() {
+        TestUtils.init();
+        return TestUtils.loadTables();
+    });
     it('head with positive number', function() {
         return check_optimization_juttle({
             program: 'read sql -table "logs" level = "info" | head 5'

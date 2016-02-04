@@ -4,6 +4,7 @@ var check_juttle = TestUtils.check_sql_juttle;
 
 describe('write proc', function () {
     before(function() {
+        TestUtils.init();
         return TestUtils.createWritingTable();
     });
 

@@ -3,6 +3,10 @@ var TestUtils = require("./utils");
 var check_juttle = TestUtils.check_sql_juttle;
 
 describe('test filters', function () {
+    before(function() {
+        TestUtils.init();
+        return TestUtils.loadTables();
+    });
     it('sql works AND', function() {
         return check_juttle({
             program: 'read sql -table "logs" level="error" host="127.0.0.2"'
