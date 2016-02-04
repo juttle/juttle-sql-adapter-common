@@ -20,6 +20,7 @@
     "noarg": true,
     "node": true,
     "predef": [ "-Promise" ],
+    "esversion": 6,
     "strict": false,
     "smarttabs": true,
     "sub": true,

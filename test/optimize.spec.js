@@ -15,7 +15,7 @@ describe('test optimizations', function() {
     });
     it('head with positive number shows initial limit of 5 in query', function() {
         return check_juttle({
-            program: 'read sql -debug true -table "logs" level = "info" | head 5'
+            program: 'read sql -from :200 days ago: -debug true -table "logs" level = "info" | head 5'
         })
         .then(function(result) {
             expect(result.errors).to.have.length(0);
@@ -28,7 +28,7 @@ describe('test optimizations', function() {
     });
     it('head 0', function() {
         return check_optimization_juttle({
-            program: 'read sql -table "logs" level = "info" | head 0'
+            program: 'read sql -from :200 days ago: -table "logs" level = "info" | head 0'
         })
         .then(function(result) {
             expect(result.sinks.table).to.have.length(0);
@@ -36,7 +36,7 @@ describe('test optimizations', function() {
     });
     it('head with limit greater than fetchSize', function() {
         return check_optimization_juttle({
-            program: 'read sql -fetchSize 2 -table "logs" level = "info" | head 5'
+            program: 'read sql -from :200 days ago: -fetchSize 2 -table "logs" level = "info" | head 5'
         })
         .then(function(result) {
             expect(result.sinks.table).to.have.length(5);
@@ -45,7 +45,7 @@ describe('test optimizations', function() {
 
     it('tail with positive number', function() {
         return check_optimization_juttle({
-            program: 'read sql -table "logs" -timeField "time" level = "info" | tail 5'
+            program: 'read sql -table "logs" -from :200 days ago: -timeField "time" level = "info" | tail 5'
         })
         .then(function(result) {
             expect(result.sinks.table).to.have.length(5);
@@ -68,7 +68,7 @@ describe('test optimizations', function() {
     });
     it('tail 0', function() {
         return check_optimization_juttle({
-            program: 'read sql -timeField "time" -table "logs" level = "info" | tail 0'
+            program: 'read sql -from :200 days ago: -timeField "time" -table "logs" level = "info" | tail 0'
         })
         .then(function(result) {
             expect(result.sinks.table).to.have.length(0);
@@ -76,7 +76,7 @@ describe('test optimizations', function() {
     });
     it('tail without a limit defaults to 1', function() {
         return check_optimization_juttle({
-            program: 'read sql -timeField "time" -table "logs" level = "info" | tail'
+            program: 'read sql -from :200 days ago: -timeField "time" -table "logs" level = "info" | tail'
         })
         .then(function(result) {
             expect(result.sinks.table).to.have.length(1);
@@ -84,21 +84,21 @@ describe('test optimizations', function() {
     });
     it('tail by unoptimized', function() {
         return check_juttle({
-            program: 'read sql -timeField "time" -table "logs" level = "info" | tail 5 by code'
+            program: 'read sql -from :200 days ago: -timeField "time" -table "logs" level = "info" | tail 5 by code'
         }).then(function(result) {
             expect(result.sinks.table).to.have.length.gt(0);
         });
     });
     it('tail with limit greater than fetchSize is not optimized', function() {
         return check_optimization_juttle({
-            program: 'read sql -fetchSize 2 -timeField "time" -table "logs" level = "info" | tail 5'
+            program: 'read sql -from :200 days ago: -fetchSize 2 -timeField "time" -table "logs" level = "info" | tail 5'
         })
         .then(function(result) {
             expect(result.sinks.table).to.have.length(5);
         })
         .then(function(result) {
             return check_optimization_juttle({
-                program: 'read sql -debug true -fetchSize 2 -timeField "time" -table "logs" level = "info" | tail 5'
+                program: 'read sql -debug true -to :yesterday: -fetchSize 2 -timeField "time" -table "logs" level = "info" | tail 5'
             });
         })
         .then(function(result) {
@@ -113,7 +113,7 @@ describe('test optimizations', function() {
 
     it('reduce count()', function() {
         return check_optimization_juttle({
-            program: 'read sql -table "logs" | reduce count()'
+            program: 'read sql -from :200 days ago: -table "logs" | reduce count()'
         })
         .then(function(result) {
             expect(result.sinks.table[0].count).to.equal(sampleData.logs.length);
@@ -138,7 +138,7 @@ describe('test optimizations', function() {
     });
     it('reduce count_unique (as target s) by field aggregation', function() {
         return check_optimization_juttle({
-            program: 'read sql -table "logs" | reduce count_unique(level)'
+            program: 'read sql -from :200 days ago: -table "logs" | reduce count_unique(level)'
         })
         .then(function(result) {
             expect(result.sinks.table[0].count_unique).to.equal(2);
@@ -146,7 +146,7 @@ describe('test optimizations', function() {
     });
     it('ensure fetchSize does not affect outcome of reduce', function() {
         return check_optimization_juttle({
-            program: 'read sql -fetchSize 2 -table "logs" | reduce sum(code)'
+            program: 'read sql -from :200 days ago: -fetchSize 2 -table "logs" | reduce sum(code)'
         })
         .then(function(result) {
             expect(result.sinks.table[0].sum).gte(1);
@@ -154,7 +154,7 @@ describe('test optimizations', function() {
     });
     it('groupby', function() {
         return check_optimization_juttle({
-            program: 'read sql -table "logs" | reduce by level',
+            program: 'read sql -from :200 days ago: -table "logs" | reduce by level',
             massage: true
         })
         .then(function(result) {

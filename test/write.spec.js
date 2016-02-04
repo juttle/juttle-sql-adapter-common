@@ -23,8 +23,8 @@ describe('write proc', function () {
             });
         })
         .then(function(result) {
-            expect(result.errors).to.have.length(0);
-            expect(result.warnings).to.have.length(0);
+            expect(result.errors[0]).to.equal(undefined);
+            expect(result.warnings[0]).to.equal(undefined);
             expect(result.sinks.table).to.have.length.gt(0);
 
             var pt = result.sinks.table[0];
@@ -48,7 +48,7 @@ describe('write proc', function () {
             program: 'emit -limit 1 | put a = { key: "val", arr: [1,2,3] } | put b = "test" | write sql -table "sqlwriter"'
         })
         .then(function(result) {
-            expect(result.warnings).to.not.have.length(0);
+            expect(result.errors[0]).to.equal(undefined);
             expect(result.warnings[0]).to.include('not supported');
         });
     });
