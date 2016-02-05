@@ -1,31 +1,27 @@
+require('./shared');
 var expect = require('chai').expect;
 var TestUtils = require("./utils");
 var check_juttle = TestUtils.check_sql_juttle;
+var check_success = TestUtils.check_juttle_success;
 
 describe('write proc', function () {
     before(function() {
-        TestUtils.init();
-        return TestUtils.createWritingTable();
+        return TestUtils.createTables(['sqlwriter']);
     });
 
     it('write points', function() {
-        return check_juttle({
+        return check_success({
             program: 'emit -limit 1 | put a = "temp_str" | put b = "temp_str2" | write sql -table "sqlwriter"'
         })
         .then(function(result) {
-            //TODO make all errors do this so that it's easier to see the error right away.
-            expect(result.errors[0]).equals(undefined);
-            expect(result.warnings).to.have.length(0);
             expect(result.sinks).to.not.include.keys('table', 'logger');
         })
         .then(function() {
-            return check_juttle({
+            return check_success({
                 program: 'read sql -table "sqlwriter" a = "temp_str"'
             });
         })
         .then(function(result) {
-            expect(result.errors[0]).to.equal(undefined);
-            expect(result.warnings[0]).to.equal(undefined);
             expect(result.sinks.table).to.have.length.gt(0);
 
             var pt = result.sinks.table[0];

@@ -4,11 +4,16 @@ var check_juttle = TestUtils.check_sql_juttle;
 
 describe('test db connection error', function () {
     before(function() {
-        TestUtils.clearState();
-        return TestUtils.init(true);
+        return TestUtils.clearState()
+        .then(function() {
+            return TestUtils.init(true);
+        });
     });
     after(function() {
-        TestUtils.clearState();
+        return TestUtils.clearState()
+        .then(function() {
+            TestUtils.init();
+        });
     });
     it('error on incorrect connection string or credentials', function() {
         return check_juttle({
