@@ -1,10 +1,15 @@
+require('./shared');
 var expect = require('chai').expect;
 var TestUtils = require("./utils");
-var check_juttle = TestUtils.check_sql_juttle;
 var sampleData = TestUtils.getSampleData();
+var check_success = TestUtils.check_juttle_success;
 var check_optimization_juttle = TestUtils.check_sql_optimization_juttle;
 
 describe('test optimizations', function() {
+    before(function() {
+        return TestUtils.createTables(['logs']);
+    });
+
     it('head with positive number', function() {
         return check_optimization_juttle({
             program: 'read sql -table "logs" level = "info" | head 5'
@@ -14,13 +19,10 @@ describe('test optimizations', function() {
         });
     });
     it('head with positive number shows initial limit of 5 in query', function() {
-        return check_juttle({
+        return check_success({
             program: 'read sql -from :200 days ago: -debug true -table "logs" level = "info" | head 5'
         })
         .then(function(result) {
-            expect(result.errors).to.have.length(0);
-            expect(result.warnings).to.have.length(0);
-
             expect(result.sinks.table).to.have.length(1);
             expect(result.sinks.table[0].query)
                 .to.match(/limit '?5'?/);
@@ -52,13 +54,10 @@ describe('test optimizations', function() {
         });
     });
     it('tail with positive number shows initial limit of 5 in query', function() {
-        return check_juttle({
+        return check_success({
             program: 'read sql -debug true -timeField "time" -table "logs" level = "info" | tail 5'
         })
         .then(function(result) {
-            expect(result.errors).to.have.length(0);
-            expect(result.warnings).to.have.length(0);
-
             expect(result.sinks.table).to.have.length(1);
             expect(result.sinks.table[0].query)
                 .to.match(/limit '?5'?/);
@@ -83,7 +82,7 @@ describe('test optimizations', function() {
         });
     });
     it('tail by unoptimized', function() {
-        return check_juttle({
+        return check_success({
             program: 'read sql -from :200 days ago: -timeField "time" -table "logs" level = "info" | tail 5 by code'
         }).then(function(result) {
             expect(result.sinks.table).to.have.length.gt(0);
@@ -102,9 +101,6 @@ describe('test optimizations', function() {
             });
         })
         .then(function(result) {
-            expect(result.errors).to.have.length(0);
-            expect(result.warnings).to.have.length(0);
-
             expect(result.sinks.table).to.have.length(1);
             expect(result.sinks.table[0].query)
                 .to.not.match(/limit '?5'?/);
@@ -125,8 +121,6 @@ describe('test optimizations', function() {
             massage: true
         })
         .then(function(result) {
-            expect(result.errors).to.have.length(0);
-            expect(result.warnings).to.have.length(0);
             expect(result.sinks.table).to.have.length(1);
             var aggr_res = result.sinks.table[0];
             expect(aggr_res.avg).to.be.gt(1);
