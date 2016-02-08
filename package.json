@@ -13,10 +13,9 @@
   "repository": "juttle/juttle-sql-adapter-common",
   "scripts": {
     "shrinkwrap": "npm-shrinkwrap",
-    "test": "mocha test/*.spec.js",
-    "jshint": "jshint *.js test/*.js lib/*.js",
-    "style": "jscs *.js test/*.js lib/*.js",
-    "lint": "npm run jshint && npm run style"
+    "test": "istanbul cover mocha -- test/*.spec.js",
+    "lint": "eslint **/*.js *.js",
+    "check-coverage": "istanbul check-coverage"
   },
   "dependencies": {
     "knex": "^0.9.0",
@@ -26,9 +25,9 @@
   },
   "devDependencies": {
     "chai": "^1.10.0",
-    "jshint": "^2.9.1-rc1",
-    "mocha": "^2.3.4",
-    "jscs": "^2.6.0"
+    "eslint": "^1.10.3",
+    "istanbul": "^0.4.2",
+    "mocha": "^2.3.4"
   },
   "peerDependencies": {
     "juttle": ">=0.4.0"
