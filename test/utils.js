@@ -117,6 +117,7 @@ var TestUtils = {
                 knex = null;
             });
         }
+        return Promise.resolve();
     },
     createLogTable: function(table_name, time_field, data) {
         return knex.schema.dropTableIfExists(table_name)
