@@ -17,12 +17,6 @@ before_install:
 
 node_js:
     - '4.2'
-    - '5.0'
-
-before_script:
-    - npm install -g jshint
-    - npm install -g jscs
 
 script:
-    - npm run -s lint
     - npm test
