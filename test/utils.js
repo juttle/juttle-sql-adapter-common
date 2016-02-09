@@ -5,7 +5,7 @@ var juttle_test_utils = require('juttle/test/runtime/specs/juttle-test-utils');
 var check_juttle = juttle_test_utils.check_juttle;
 var expect = require('chai').expect;
 var Juttle = require('juttle/lib/runtime').Juttle;
-var logger = require('juttle/lib/logger').getLogger('sql-time-test');
+var logger = require('juttle/lib/logger').getLogger('sql-test-util');
 
 var knex;
 var adapter;
@@ -21,7 +21,7 @@ var TestUtils = {
 
         adapter = AdapterClass(config);
 
-        logger.info('Testing ' + adapter.name + ' adapter with config:', config);
+        logger.info('Testing ' + adapter.name + ' adapter.');
 
         knex = adapter.knex;
 
@@ -51,18 +51,18 @@ var TestUtils = {
     },
     getAdapterConfig: function(useFake) {
         var real = {
-            "knex_conf" : {
+            knex: require('knex')({
                 "client": "sqlite3",
                 "connection": ":memory:"
-            }
+            })
         };
         var fake = {
-            "knex_conf" : {
+            knex: require('knex')({
                 "client": "sqlite3",
                 "connection": {
                     filename: "./not_dir/not_dir/not_db.sqlite"
                 }
-            }
+            })
         };
 
         return useFake ? fake : real;
