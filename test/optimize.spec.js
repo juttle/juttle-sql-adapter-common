@@ -62,7 +62,7 @@ describe('test optimizations', function() {
             expect(result.sinks.table[0].query)
                 .to.match(/limit '?5'?/);
             expect(result.sinks.table[0].query)
-                .to.match(/ORDER BY "time" desc/i);
+                .to.match(/ORDER BY ("|`)time("|`) desc/i);
         });
     });
     it('tail 0', function() {
