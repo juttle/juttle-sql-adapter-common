@@ -240,6 +240,20 @@ describe('test optimizations', function() {
             });
         });
     });
+    it('reduce every empty aggregates on before and after', function() {
+        return check_optimization_juttle({
+            program: 'read sql -from :170 days ago: -to :104 days ago: -table "logs" |' +
+                'reduce -every :week: count(), a = avg(code), max(code), min(code), s = sum(code), count_unique(code)',
+            massage: true
+        })
+        .then(function(result) {
+            expect(result.sinks.table).to.have.length.gte(3);
+
+            result.sinks.table.forEach(function(row) {
+                expect(row).to.include.keys('count', 'a', 'max', 'min', 's', 'count_unique');
+            });
+        });
+    });
     it('reduce every with aggregation and groupby', function() {
         return check_optimization_juttle({
             program: 'read sql -from :20 days ago: -to :3 days ago: -table "logs" | reduce -every :week: a = avg(code) by level',

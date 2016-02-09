@@ -174,6 +174,8 @@ var TestUtils = {
             });
         });
     },
+    // What is performed here:
+    // - round values
     massage: function(arr, shouldMassage) {
         if (!shouldMassage) {
             return arr;
@@ -190,7 +192,6 @@ var TestUtils = {
                 }
             }
         })
-        .compact()
         .value();
     },
     expectTimeSorted: function(result) {
