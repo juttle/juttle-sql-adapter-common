@@ -13,9 +13,10 @@
   "repository": "juttle/juttle-sql-adapter-common",
   "scripts": {
     "shrinkwrap": "npm-shrinkwrap",
-    "test": "npm run unit-coverage && npm run check-coverage && npm run lint",
-    "unit-coverage": "istanbul cover node_modules/.bin/_mocha -- test/*.spec.js",
+    "test": "npm run unit && npm run lint",
+    "test-coverage": "istanbul cover node_modules/.bin/_mocha -- test/*.spec.js",
     "unit": "mocha test/*.spec.js",
+    "hist": "mocha test/*.spec.js -g live -i",
     "lint": "eslint **/*.js *.js",
     "check-coverage": "istanbul check-coverage"
   },
