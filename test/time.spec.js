@@ -76,9 +76,8 @@ describe('test time usage', function () {
             program: 'read sql -fetchSize 100 -from :200 days ago: -timeField "create_time" -table "logs_same_time"'
         })
         .then(function(result) {
-            expect(result.errors).to.have.length(1);
             expect(result.errors[0])
-                .to.match(/.*unable to paginate because all of fetchSize 100 has the same timeField.*/);
+                .to.match(/.*unable to paginate because all of fetchSize 100 has the same create_time.*/);
         });
     });
     it('sql time usage with same timeField without pagination', function() {
