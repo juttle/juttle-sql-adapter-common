@@ -105,7 +105,7 @@ describe('test optimizations', function() {
             expect(result.sinks.table).to.have.length(5);
         })
         .then(function(result) {
-            return check_optimization_juttle({
+            return check_success({
                 program: 'read sql -debug true -to :yesterday: -fetchSize 2 -timeField "time" -table "logs" level = "info" | tail 5'
             });
         })

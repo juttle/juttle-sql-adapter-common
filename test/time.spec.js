@@ -13,7 +13,7 @@ describe('test time usage', function () {
 
     it('sql time usage', function() {
         return check_success({
-            program: 'read sql -from :100 days ago: -to :now: -table "logs" | reduce -every :3 days: avg = avg(code)'
+            program: 'read sql -from :100 days ago: -to :1 day ago: -table "logs" | reduce -every :3 days: avg = avg(code)'
         })
         .then(function(result) {
             //catch single element reduce output
@@ -76,9 +76,8 @@ describe('test time usage', function () {
             program: 'read sql -fetchSize 100 -from :200 days ago: -timeField "create_time" -table "logs_same_time"'
         })
         .then(function(result) {
-            expect(result.errors).to.have.length(1);
             expect(result.errors[0])
-                .to.match(/.*unable to paginate because all of fetchSize 100 has the same timeField.*/);
+                .to.match(/.*unable to paginate because all of fetchSize 100 has the same create_time.*/);
         });
     });
     it('sql time usage with same timeField without pagination', function() {
