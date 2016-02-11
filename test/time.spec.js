@@ -13,7 +13,7 @@ describe('test time usage', function () {
 
     it('sql time usage', function() {
         return check_success({
-            program: 'read sql -from :100 days ago: -to :now: -table "logs" | reduce -every :3 days: avg = avg(code)'
+            program: 'read sql -from :100 days ago: -to :1 day ago: -table "logs" | reduce -every :3 days: avg = avg(code)'
         })
         .then(function(result) {
             //catch single element reduce output
