@@ -188,6 +188,9 @@ var TestUtils = {
             var k, v;
             for (k in pt) {
                 v = pt[k];
+                if (v === Infinity || v === -Infinity) {
+                    pt[k] = null;
+                }
                 if (_.isNumber(v) && (v % 1)) {
                     pt[k] = Math.round(v * 10000) / 10000;
                 }
@@ -233,6 +236,13 @@ var TestUtils = {
         }).then(function(res) {
             expect(res.opt.errors[0]).to.equal(undefined);
             expect(res.opt.warnings[0]).to.equal(undefined);
+
+            if (params.optimize_param) {
+                var res_opt_param = res.opt.prog.graph.params.optimization_info;
+                res_opt_param = _.omit(res_opt_param, 'empty_aggregate', 'expect_empty_aggregate');
+                expect(res_opt_param)
+                    .to.deep.equal(params.optimize_param);
+            }
 
             var unopt = TestUtils.massage(res.unopt.sinks.table, params.massage);
             var opt = TestUtils.massage(res.opt.sinks.table, params.massage);
