@@ -80,6 +80,17 @@ describe('test time usage', function () {
                 .to.match(/.*unable to paginate because all of fetchSize 100 has the same create_time.*/);
         });
     });
+    it('sql with timeField but no to/from', function() {
+        return check_juttle({
+            program: 'read sql -timeField "time" -table "logs"'
+        })
+        .then(function() {
+            throw new Error('We should not get this error');
+        })
+        .catch(function(result) {
+            expect(result.message).to.contain("required option -from, -to, or -last when -timeField is specified");
+        });
+    });
     it('sql time usage with same timeField without pagination', function() {
         return check_success({
             program: 'read sql -from :200 days ago: -timeField "create_time" -table "logs_same_time"'

@@ -60,7 +60,7 @@ describe('test optimizations', function() {
     });
     it('tail with positive number shows initial limit of 5 in query', function() {
         return check_success({
-            program: 'read sql -debug true -timeField "time" -table "logs" level = "info" | tail 5'
+            program: 'read sql -debug true -last :200 days: -timeField "time" -table "logs" level = "info" | tail 5'
         })
         .then(function(result) {
             expect(result.sinks.table).to.have.length(1);
