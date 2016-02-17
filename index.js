@@ -11,8 +11,7 @@ function SqlAdapter(config) {
         name: 'sql',
         read: require('./lib/read'),
         write: require('./lib/write'),
-        optimizer: require('./lib/optimize'),
-        knex: db.getDbConnection()
+        optimizer: require('./lib/optimize')
     };
 }
 module.exports = SqlAdapter;
