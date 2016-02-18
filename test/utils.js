@@ -6,6 +6,7 @@ var check_juttle = juttle_test_utils.check_juttle;
 var expect = require('chai').expect;
 var Juttle = require('juttle/lib/runtime').Juttle;
 var logger = require('juttle/lib/logger').getLogger('sql-test-util');
+var db = require('../lib/db');
 
 var knex;
 var adapter;
@@ -13,17 +14,17 @@ var createdTables = [];
 var tableCreationMap;
 
 var TestUtils = {
-    init: function (useFake) {
+    init: function () {
         if (adapter) { return; }
 
-        var AdapterClass = useFake ? TestUtils.getTestAdapterClass() : TestUtils.getAdapterClass();
-        var config = TestUtils.getAdapterConfig(useFake);
+        var AdapterClass = TestUtils.getAdapterClass();
+        var config = TestUtils.getAdapterConfig();
 
         adapter = AdapterClass(config);
 
         logger.info('Testing ' + adapter.name + ' adapter.');
 
-        knex = adapter.knex;
+        knex = db.getDbConnection();
 
         try {
             Juttle.adapters.register(adapter.name, adapter);
@@ -47,34 +48,32 @@ var TestUtils = {
 
     // override Class and Config in each repo that uses the sql common tests.
     getAdapterClass: function() {
-        return require('../');
-    },
-    getAdapterConfig: function(useFake) {
-        var real = {
-            knex: require('knex')({
-                "client": "sqlite3",
-                "connection": ":memory:"
-            })
-        };
-        var fake = {
-            knex: require('knex')({
-                "client": "sqlite3",
-                "connection": {
-                    filename: "./not_dir/not_dir/not_db.sqlite"
-                }
-            })
-        };
+        db.getKnex = function(config, options) {
+            options = options || {};
 
-        return useFake ? fake : real;
-    },
-
-    getTestAdapterClass: function () {
-        var adapterClass = TestUtils.getAdapterClass();
-        return function(conf) {
-            var adapter = adapterClass.call(this, conf);
-            adapter.name = 'test';
-            return adapter;
+            var connection = {
+                filename: config.filename
+            };
+            if (options.db) {
+                connection.filename = options.db;
+            }
+            return require('knex')({
+                "client": "sqlite3",
+                "connection": connection
+            });
         };
+        return  require('../');
+    },
+    getAdapterConfig: function() {
+        return [
+            {
+                id: 'default',
+                filename: "./unit-test.sqlite"
+            }, {
+                id: 'fake',
+                filename: "./not_dir/should_not_work/not_db.sqlite"
+            }
+        ];
     },
     getSampleData: function () {
         return sampleData;
@@ -113,7 +112,7 @@ var TestUtils = {
         if (knex) {
             return TestUtils.removeTables()
             .then(function() {
-                knex.destroy();
+                db.closeConnection();
                 knex = null;
             });
         }

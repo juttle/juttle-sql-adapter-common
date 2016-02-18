@@ -58,4 +58,13 @@ describe('write proc', function () {
             expect(result.errors[0]).to.match(/(has no column|column .* does not exist|Unknown column 'c')/);
         });
     });
+
+    it('write to dynamic db', function() {
+        return check_juttle({
+            program: 'emit -limit 1 | put c = "hi" | put d = "yes" | write sql -db "./nosuchdir/nosuchdb" -table "sqlwriter"'
+        })
+        .then(function(result) {
+            expect(result.errors[0]).to.contain("could not connect to database");
+        });
+    });
 });
