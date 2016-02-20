@@ -2,7 +2,9 @@
     SQL Adapter Common Code
     Plug in your favorite knex-supported RDBMS and use juttle to interact with it.
 */
-var db = require('./lib/db');
+'use strict';
+
+let db = require('./lib/db');
 
 function SqlAdapter(config) {
     db.init(config);
