@@ -62,9 +62,6 @@ describe('test options', function () {
         return TestUtils.check_juttle_error({
             program: 'read sql level = "error"'
         })
-        .then(function() {
-            throw new Error('We should not get this error');
-        })
         .catch(function(result) {
             expect(result.message).to.contain("required option -table or -raw.");
         });
@@ -72,9 +69,6 @@ describe('test options', function () {
     it('incompatable option error', function() {
         return TestUtils.check_juttle_error({
             program: 'read sql -table "test" -raw "RAW SQL" level = "error"'
-        })
-        .then(function() {
-            throw new Error('We should not get this error');
         })
         .catch(function(result) {
             expect(result.message).to.contain("-raw option should not be combined with");
