@@ -35,15 +35,13 @@ var TestUtils = {
         }
         tableCreationMap = TestUtils.getTableCreationMap();
     },
-
     initTestDbConnection: function() {
-        juttle_test_utils.withAdapterAPI(function(){
-            db = require('../lib/db');
+        juttle_test_utils.withAdapterAPI(() => {
+            db = this.getDBClass();
             db.init(TestUtils.getAdapterConfig());
             knex = db.getDbConnection();
         });
     },
-
     getTableCreationMap: function() {
         return {
             logs: function() { return TestUtils.createLogTable('logs', 'time', sampleData.logs); },

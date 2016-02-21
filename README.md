@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/juttle/juttle-sql-adapter-common.svg?branch=master)](https://travis-ci.org/juttle/juttle-sql-adapter-common)
 
-Common code shared among
+Code from the `/lib` and `/test` directory shared among
 [PostgreSQL](https://github.com/juttle/juttle-postgres-adapter/),
 [MySQL](https://github.com/juttle/juttle-mysql-adapter/)
 and [SQLite](https://github.com/juttle/juttle-sqlite-adapter/) adapters.
