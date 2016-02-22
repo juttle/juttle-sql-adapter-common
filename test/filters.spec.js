@@ -31,6 +31,21 @@ describe('test filters', function () {
             });
         });
     });
+    it('sql OR with other post-filter conditions', function() {
+        return check_success({
+            program: 'read sql -table "logs" -from :10 days ago: host="127.0.0.1" OR level="error" '
+        })
+        .then(function(result) {
+            var ten_days_ago = new Date();
+            ten_days_ago.setDate(new Date().getDate() - 10);
+            ten_days_ago = ten_days_ago.toISOString();
+
+            result.sinks.table.forEach(function(pt) {
+                expect(pt.time).gt(ten_days_ago);
+                expect(pt.level === "error" || pt.host === "127.0.0.1").to.be.true;
+            });
+        });
+    });
     it('sql OR -> AND', function() {
         return check_success({
             program: 'read sql -table "logs" (level="error" AND host="127.0.0.2") OR (host="127.0.0.1" AND level="info")'
