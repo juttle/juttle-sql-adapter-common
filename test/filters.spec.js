@@ -2,6 +2,7 @@ require('./shared');
 var expect = require('chai').expect;
 var TestUtils = require("./utils");
 var check_success = TestUtils.check_juttle_success;
+var check_juttle_error = TestUtils.check_juttle_error;
 
 describe('test filters', function () {
     before(function() {
@@ -165,6 +166,31 @@ describe('test filters', function () {
         })
         .then(function(result) {
             expect(result.sinks.table).to.have.length.within(9,11);
+        });
+    });
+
+    it('sql filters with Infinity', function() {
+        return check_juttle_error({
+            program: 'read sql -table "logs" code > Infinity'
+        })
+        .catch(function(err) {
+            expect(err.message).to.contain('Filters do not support Infinity');
+        });
+    });
+    it('sql filters with NaN', function() {
+        return check_juttle_error({
+            program: 'read sql -table "logs" code > NaN'
+        })
+        .catch(function(err) {
+            expect(err.message).to.contain('Filters do not support NaN');
+        });
+    });
+    it('sql filters with RegExp', function() {
+        return check_juttle_error({
+            program: 'read sql -table "logs" code =~ /2/'
+        })
+        .catch(function(err) {
+            expect(err.message).to.contain('Filters do not support Regular Expressions');
         });
     });
 });

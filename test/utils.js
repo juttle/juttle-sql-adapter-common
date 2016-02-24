@@ -1,33 +1,33 @@
 var sampleData = require("./sample_data");
 var Promise = require('bluebird');
 var _ = require('underscore');
-var juttle_test_utils = require('juttle/test/runtime/specs/juttle-test-utils');
-var check_juttle = juttle_test_utils.check_juttle;
+var juttle_test_utils = require('juttle/test').utils;
+var check_juttle = juttle_test_utils.checkJuttle;
 var expect = require('chai').expect;
-var Juttle = require('juttle/lib/runtime').Juttle;
 var logger = require('juttle/lib/logger').getLogger('sql-test-util');
-var db = require('../lib/db');
 
+var db;
 var knex;
-var adapter;
+var adapterName;
 var createdTables = [];
 var tableCreationMap;
 
 var TestUtils = {
     init: function () {
-        if (adapter) { return; }
+        if (adapterName) { return; }
 
-        var AdapterClass = TestUtils.getAdapterClass();
         var config = TestUtils.getAdapterConfig();
+        adapterName = TestUtils.getAdapterName();
 
-        adapter = AdapterClass(config);
+        logger.info('Testing ' + adapterName + ' adapter.');
 
-        logger.info('Testing ' + adapter.name + ' adapter.');
-
-        knex = db.getDbConnection();
+        TestUtils.initTestDbConnection();
 
         try {
-            Juttle.adapters.register(adapter.name, adapter);
+            var confParams = {};
+            confParams[adapterName] = config;
+
+            juttle_test_utils.configureAdapter(confParams);
         } catch (err) {
             if (!err.message.includes('already registered')) {
                 throw err;
@@ -35,7 +35,13 @@ var TestUtils = {
         }
         tableCreationMap = TestUtils.getTableCreationMap();
     },
-
+    initTestDbConnection: function() {
+        juttle_test_utils.withAdapterAPI(() => {
+            db = this.getDBClass();
+            db.init(TestUtils.getAdapterConfig());
+            knex = db.getDbConnection();
+        });
+    },
     getTableCreationMap: function() {
         return {
             logs: function() { return TestUtils.createLogTable('logs', 'time', sampleData.logs); },
@@ -45,41 +51,8 @@ var TestUtils = {
             sqlwriter: function() { return TestUtils.createWritingTable(); }
         };
     },
-
-    // override Class and Config in each repo that uses the sql common tests.
-    getAdapterClass: function() {
-        db.getKnex = function(config, options) {
-            options = options || {};
-
-            var connection = {
-                filename: config.filename
-            };
-            if (options.db) {
-                connection.filename = options.db;
-            }
-            return require('knex')({
-                "client": "sqlite3",
-                "connection": connection
-            });
-        };
-        return  require('../');
-    },
-    getAdapterConfig: function() {
-        return [
-            {
-                id: 'default',
-                filename: "./unit-test.sqlite"
-            }, {
-                id: 'fake',
-                filename: "./not_dir/should_not_work/not_db.sqlite"
-            }
-        ];
-    },
     getSampleData: function () {
         return sampleData;
-    },
-    getAdapterName: function () {
-        return adapter.name;
     },
     createTables: function (createTableNames) {
         return Promise.try(function() {
@@ -108,7 +81,7 @@ var TestUtils = {
         });
     },
     clearState: function() {
-        adapter = null;
+        adapterName = '';
         if (knex) {
             return TestUtils.removeTables()
             .then(function() {
@@ -208,7 +181,7 @@ var TestUtils = {
         });
     },
     check_sql_juttle: function(params, deactivateAfter) {
-        params.program = params.program.replace(' sql ', ' ' + adapter.name + ' ');
+        params.program = params.program.replace(' sql ', ' ' + adapterName + ' ');
         return check_juttle(params, deactivateAfter);
     },
     check_juttle_success: function(params, deactivateAfter) {
@@ -252,4 +225,5 @@ var TestUtils = {
     }
 };
 
+_.extend(TestUtils, require('./conf'));
 module.exports = TestUtils;

@@ -1,16 +1,32 @@
 /*
     SQL Adapter Common Code
-    Plug in your favorite knex-supported RDBMS and use juttle to interact with it.
+    Note: This file is only used for testing.
 */
-var db = require('./lib/db');
+'use strict';
+
+let db = require('./sqlite-db');
+let Read = require('./lib/read');
+let Write = require('./lib/write');
+
+class SqliteRead extends Read {
+    getDbConnection(options) {
+        return db.getDbConnection(options);
+    }
+}
+
+class SqliteWrite extends Write {
+    getDbConnection(options) {
+        return db.getDbConnection(options);
+    }
+}
 
 function SqlAdapter(config) {
     db.init(config);
 
     return {
         name: 'sql',
-        read: require('./lib/read'),
-        write: require('./lib/write'),
+        read: SqliteRead,
+        write: SqliteWrite,
         optimizer: require('./lib/optimize')
     };
 }

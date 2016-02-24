@@ -81,14 +81,11 @@ describe('test time usage', function () {
         });
     });
     it('sql with timeField but no to/from', function() {
-        return check_juttle({
+        return TestUtils.check_juttle_error({
             program: 'read sql -timeField "time" -table "logs"'
         })
-        .then(function() {
-            throw new Error('We should not get this error');
-        })
-        .catch(function(result) {
-            expect(result.message).to.contain("required option -from, -to, or -last when -timeField is specified");
+        .catch(function(err) {
+            expect(err.message).to.contain("required option -from, -to, or -last when -timeField is specified");
         });
     });
     it('sql time usage with same timeField without pagination', function() {
