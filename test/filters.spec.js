@@ -190,7 +190,7 @@ describe('test filters', function () {
             program: 'read sql -table "logs" code =~ /2/'
         })
         .catch(function(err) {
-            expect(err.message).to.contain('Filters do not support Regular Expressions');
+            expect(err.message).to.contain('Filters do not support regular expressions');
         });
     });
 });
