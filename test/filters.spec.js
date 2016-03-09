@@ -160,12 +160,12 @@ describe('test filters', function () {
             });
         });
     });
-    it('sql filters with dates', function() {
-        return check_success({
+    it('sql filters with dates errors', function() {
+        return check_juttle_error({
             program: 'read sql -table "logs" time > :10 days ago:'
         })
-        .then(function(result) {
-            expect(result.sinks.table).to.have.length.within(9,11);
+        .catch(function(err) {
+            expect(err.message).to.contain('Cannot filter on "time" in read');
         });
     });
 

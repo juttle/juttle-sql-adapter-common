@@ -182,7 +182,8 @@ var TestUtils = {
     },
     check_sql_juttle: function(params, deactivateAfter) {
         params.program = params.program.replace(' sql ', ' ' + adapterName + ' ');
-        return check_juttle(params, deactivateAfter);
+        params.deactivateAfter = deactivateAfter;
+        return check_juttle(params);
     },
     check_juttle_success: function(params, deactivateAfter) {
         return TestUtils.check_sql_juttle(params, deactivateAfter)
