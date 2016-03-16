@@ -37,12 +37,12 @@ describe('test filters', function () {
             program: 'read sql -table "logs" -from :10 days ago: host="127.0.0.1" OR level="error" '
         })
         .then(function(result) {
-            var ten_days_ago = new Date();
-            ten_days_ago.setDate(new Date().getDate() - 10);
-            ten_days_ago = ten_days_ago.toISOString();
+            var eleven_days_ago = new Date();
+            eleven_days_ago.setDate(new Date().getDate() - 11);
+            eleven_days_ago = eleven_days_ago.toISOString();
 
             result.sinks.table.forEach(function(pt) {
-                expect(pt.time).gt(ten_days_ago);
+                expect(pt.time).gt(eleven_days_ago);
                 expect(pt.level === "error" || pt.host === "127.0.0.1").to.be.true;
             });
         });
