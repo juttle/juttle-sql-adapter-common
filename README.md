@@ -11,6 +11,7 @@ and [SQLite](https://github.com/juttle/juttle-sqlite-adapter/) adapters.
 
 * any filter expression `read sql` (note: `read sql | filter ...` is not optimized)
 * `head` or `tail`
+* `sort` when used without a `groupby` (note the `time` key will be deleted from any point) 
 * `reduce count()`, `sum()`, `min()`, `max()`, `sum()`, `avg()`, `count_unique()`
 * `reduce by fieldname`
 * `reduce -every :interval:`

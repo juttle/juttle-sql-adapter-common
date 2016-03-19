@@ -149,14 +149,11 @@ var TestUtils = {
     },
     // What is performed here:
     // - round values
-    massage: function(arr, shouldMassage) {
-        if (!shouldMassage) {
+    massage: function(arr, massageOptions) {
+        if (!massageOptions) {
             return arr;
         }
-        return _.chain(arr)
-        .sortBy('level')
-        .sortBy('code')
-        .each(function(pt) {
+        _.each(arr, function(pt) {
             var k, v;
             for (k in pt) {
                 v = pt[k];
@@ -167,8 +164,15 @@ var TestUtils = {
                     pt[k] = Math.round(v * 10000) / 10000;
                 }
             }
-        })
-        .value();
+        });
+        
+        if (massageOptions.sort) {
+            massageOptions.sort.forEach(function(sortField) {
+                arr = _.sortBy(sortField);
+            });
+        }
+        
+        return arr;
     },
     expectTimeSorted: function(result) {
         var time;

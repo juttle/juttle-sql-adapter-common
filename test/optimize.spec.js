@@ -9,6 +9,68 @@ describe('test optimizations', function() {
     before(function() {
         return TestUtils.createTables(['logs']);
     });
+    
+    it('sort by field', function() {
+        return check_optimization_juttle({
+            program: 'read sql -table "logs" | sort code | head 10',
+            optimize_param: {
+                type: "sort", 
+                columns: [{
+                    direction: "",
+                    field: 'code'
+                }],
+            },
+            massage: {sort: ['host', 'level']},
+        })
+        .then(function(result) {
+            expect(result.sinks.table).to.have.length.gt(5);
+        });
+    });
+    it('sort by 2 fields', function() {
+        return check_optimization_juttle({
+            program: 'read sql -table "logs" | sort code, level | head 10',
+            optimize_param: {
+                type: "sort", 
+                columns: [
+                    {
+                        direction: "",
+                        field: 'code'
+                    },
+                    {
+                        direction: "",
+                        field: 'level'
+                    }
+                ],
+            },
+            massage: {sort: ['host']},
+        })
+        .then(function(result) {
+            expect(result.sinks.table).to.have.length.gt(5);
+        });
+    });
+    it('sort by 2 fields with order change', function() {
+        return check_optimization_juttle({
+            program: 'read sql -table "logs" | sort code -desc,level | head 20',
+            optimize_param: {
+                type: "sort", 
+                columns: [
+                    {
+                        direction: "desc",
+                        field: 'code'
+                    },
+                    {
+                        direction: "",
+                        field: 'level'
+                    }
+                ],
+            },
+            massage: {sort: ['host']},
+        })
+        .then(function(result) {
+            expect(result.sinks.table).to.have.length.gt(5);
+        });
+    });
+
 
     it('head with positive number', function() {
         return check_optimization_juttle({
@@ -131,7 +193,7 @@ describe('test optimizations', function() {
     it('reduce avg, count, max, min, sum (as target s) by field aggregation', function() {
         return check_optimization_juttle({
             program: 'read sql -table "logs" | reduce avg(code), count(level), max(code), min(code), s = sum(code)',
-            massage: true,
+            massage: {sort: ['code', 'level']},
             optimize_param: {
                 type: 'reduce',
                 aggregations: {
@@ -184,7 +246,7 @@ describe('test optimizations', function() {
     it('groupby', function() {
         return check_optimization_juttle({
             program: 'read sql -from :200 days ago: -table "logs" | reduce by level',
-            massage: true,
+            massage: {sort: ['code', 'level']},
             optimize_param: {
                 type: 'reduce',
                 aggregations: {},
@@ -201,7 +263,7 @@ describe('test optimizations', function() {
     it('groupby and count', function() {
         return check_optimization_juttle({
             program: 'read sql -table "logs" | reduce count() by level',
-            massage: true,
+            massage: {sort: ['code', 'level']},
             optimize_param: {
                 type: 'reduce',
                 aggregations: {
@@ -220,7 +282,7 @@ describe('test optimizations', function() {
     it('multiple groupby count', function() {
         return check_optimization_juttle({
             program: 'read sql -table "logs" | reduce count() by level,code',
-            massage: true,
+            massage: {sort: ['code', 'level']},
             optimize_param: {
                 type: 'reduce',
                 aggregations: {
@@ -244,7 +306,7 @@ describe('test optimizations', function() {
     it('reduce every', function() {
         return check_optimization_juttle({
             program: 'read sql -from :20 days ago: -to :3 days ago: -table "logs" | reduce -every :week: count()',
-            massage: true,
+            massage: {sort: ['code', 'level']},
             optimize_param: {
                 type: 'reduce',
                 aggregations: {
@@ -264,7 +326,7 @@ describe('test optimizations', function() {
     it('reduce every with timeframe smaller than every param', function() {
         return check_optimization_juttle({
             program: 'read sql -from :8 days ago: -to :4 days ago: -table "logs" | reduce -every :week: count(), a = avg(code)',
-            massage: true,
+            massage: {sort: ['code', 'level']},
             optimize_param: {
                 type: 'reduce',
                 aggregations: {
@@ -286,7 +348,7 @@ describe('test optimizations', function() {
         //first opt elem has count = 0 (not included in unopt) and last time is -3d not full week. which is right?
         return check_optimization_juttle({
             program: 'read sql -from :20 days ago: -to :3 days ago: -table "logs" | reduce -every :week: -on :day 2: count()',
-            massage: true,
+            massage: {sort: ['code', 'level']},
             optimize_param: {
                 type: 'reduce',
                 aggregations: {
@@ -307,7 +369,7 @@ describe('test optimizations', function() {
     it('reduce every multi-aggr', function() {
         return check_optimization_juttle({
             program: 'read sql -from :20 days ago: -to :3 days ago: -table "logs" | reduce -every :week: c = count(), a = avg(code)',
-            massage: true,
+            massage: {sort: ['code', 'level']},
             optimize_param: {
                 type: 'reduce',
                 aggregations: {
@@ -329,7 +391,7 @@ describe('test optimizations', function() {
         return check_optimization_juttle({
             program: 'read sql -from :60 hours ago: -to :12 hours ago: -table "logs" |' +
                 'reduce -every :hour: count(), a = avg(code), max(code), min(code), s = sum(code), count_unique(code)',
-            massage: true,
+            massage: {sort: ['code', 'level']},
             optimize_param: {
                 type: 'reduce',
                 aggregations: {
@@ -354,7 +416,7 @@ describe('test optimizations', function() {
     it('reduce every with aggregation and groupby', function() {
         return check_optimization_juttle({
             program: 'read sql -from :20 days ago: -to :3 days ago: -table "logs" | reduce -every :week: a = avg(code) by level',
-            massage: true,
+            massage: {sort: ['code', 'level']},
             optimize_param: {
                 type: 'reduce',
                 aggregations: {
