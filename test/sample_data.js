@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var moment = require('moment');
 var tableData = {};
 
 var logs = [];
@@ -9,9 +10,7 @@ var temp;
 for (var i = 150 ; i > 0 ; i--) {
     isErrLog = Math.round(Math.random()); // 0 or 1
 
-    temp = new Date();
-    temp.setDate(today.getDate() - i);
-
+    temp = moment.utc().subtract(i, 'days').toDate();
     logs.push({
         time: temp,
         host: "127.0.0." + (Math.round(Math.random()) + 1),
