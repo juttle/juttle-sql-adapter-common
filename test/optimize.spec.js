@@ -26,6 +26,38 @@ describe('test optimizations', function() {
             expect(result.sinks.table).to.have.length.gt(5);
         });
     });
+    it('sort by field with pagination', function() {
+        return check_optimization_juttle({
+            program: 'read sql -fetchSize 40 -table "logs" | sort code',
+            optimize_param: {
+                type: "sort", 
+                columns: [{
+                    direction: "",
+                    field: 'code'
+                }],
+            },
+            massage: {sort: ['host', 'level']},
+        })
+        .then(function(result) {
+            expect(result.sinks.table).to.have.length(150);
+        });
+    });
+    it('sort by field with pagination desc', function() {
+        return check_optimization_juttle({
+            program: 'read sql -fetchSize 40 -table "logs" | sort code -desc',
+            optimize_param: {
+                type: "sort", 
+                columns: [{
+                    direction: "desc",
+                    field: 'code'
+                }],
+            },
+            massage: {sort: ['host', 'level']},
+        })
+        .then(function(result) {
+            expect(result.sinks.table).to.have.length(150);
+        });
+    });
     it('sort by 2 fields', function() {
         return check_optimization_juttle({
             program: 'read sql -table "logs" | sort code, level | head 10',
@@ -70,7 +102,6 @@ describe('test optimizations', function() {
             expect(result.sinks.table).to.have.length.gt(5);
         });
     });
-
 
     it('head with positive number', function() {
         return check_optimization_juttle({
