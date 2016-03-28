@@ -168,7 +168,7 @@ var TestUtils = {
         
         if (massageOptions.sort) {
             massageOptions.sort.forEach(function(sortField) {
-                arr = _.sortBy(sortField);
+                arr = _.sortBy(arr, sortField);
             });
         }
         

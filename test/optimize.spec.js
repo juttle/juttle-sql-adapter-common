@@ -12,7 +12,7 @@ describe('test optimizations', function() {
     
     it('sort by field', function() {
         return check_optimization_juttle({
-            program: 'read sql -table "logs" | sort code | head 10',
+            program: 'read sql -table "logs" | sort code',
             optimize_param: {
                 type: "sort", 
                 columns: [{
@@ -60,7 +60,7 @@ describe('test optimizations', function() {
     });
     it('sort by 2 fields', function() {
         return check_optimization_juttle({
-            program: 'read sql -table "logs" | sort code, level | head 10',
+            program: 'read sql -table "logs" | sort code, level',
             optimize_param: {
                 type: "sort", 
                 columns: [
@@ -82,7 +82,7 @@ describe('test optimizations', function() {
     });
     it('sort by 2 fields with order change', function() {
         return check_optimization_juttle({
-            program: 'read sql -table "logs" | sort code -desc,level | head 20',
+            program: 'read sql -table "logs" | sort code -desc,level',
             optimize_param: {
                 type: "sort", 
                 columns: [
